@@ -5,7 +5,7 @@ namespace hey_url_challenge_code_dotnet.ViewModels
 {
     public class HomeViewModel
     {
-        public IEnumerable<Url> Urls { get; set; }
-        public Url NewUrl { get; set; }
+        public IEnumerable<UrlModel> Urls { get; set; }
+        public UrlModel NewUrl { get; set; }
     }
 }

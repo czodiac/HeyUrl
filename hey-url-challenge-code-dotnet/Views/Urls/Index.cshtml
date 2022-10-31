@@ -1,17 +1,17 @@
-﻿@model hey_url_challenge_code_dotnet.ViewModels.HomeViewModel
+﻿@model hey_url_challenge_code_dotnet.ViewModels.HomeViewModel;
 
 @{
     ViewData["Title"] = "Home Page";
 }
 
-@if (TempData["Notice"] is not null)
-{
+@if (TempData["Notice"] is not null) {
     <div class="card-panel notice deep-orange">@TempData["Notice"]</div>
 }
 
 <div class="row">
     <div class="col m12">
-        <form asp-action="Create">
+        <form method="post" asp-action="Index">
+            <div asp-validation-summary="ModelOnly"></div>
             <div class="card">
                 <div class="card-content">
                     <div class="row">
@@ -19,9 +19,10 @@
                             <span class="card-title">Create a new short URL</span>
                         </div>
                     </div>
-                    <div class="row"> 
+                    <div class="row">
                         <div class="col m6 offset-m2">
-                            <input type="text" class="validate form-control" placeholder="Your original URL here"/>
+                            <input type="text" asp-for="NewUrl.FullUrl" placeholder="Your original URL here" />
+                            <span asp-validation-for="NewUrl.FullUrl" class="materialize-red-text"></span>
                         </div>
                         <div class="col m2">
                             <button type="submit" class="btn">Shorten URL</button>
@@ -43,12 +44,11 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var url in Model.Urls)
-        {
+        @foreach (var url in Model.Urls) {
             <tr>
-                <th scope="row"><a href="https://localhost:5001/ABCDE">https://localhost:5001/ABCDE</a></th>
-                <td><a href="https://drive.google.com/file/d/1VdLgSSMojWFb1GRoBAFX_eXy7oX2J">drive.google.com/file/d/1VdLgSS...</a></td>
-                <td><!-- Please match the same format -->Feb 24, 2021</td>
+                <th scope="row"><a href="https://localhost:5001/@url.ShortUrl">@url.ShortUrl</a></th>
+                <td><a href="@url.FullUrl" target="_blank">@url.FullUrl</a></td>
+                <td>@String.Format("{0:MMM dd, yyyy}", @url.Created)</td>
                 <td>@url.Count</td>
                 <td>
                     <a href=@string.Format("/urls/{0}", url.ShortUrl)>
@@ -61,3 +61,8 @@
         }
     </tbody>
 </table>
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

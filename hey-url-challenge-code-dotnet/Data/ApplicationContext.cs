@@ -1,5 +1,6 @@
 using hey_url_challenge_code_dotnet.Models;
 using Microsoft.EntityFrameworkCore;
+using Web_Application.Models;
 
 namespace HeyUrlChallengeCodeDotnet.Data
 {
@@ -9,6 +10,8 @@ namespace HeyUrlChallengeCodeDotnet.Data
         {
         }
 
-        public DbSet<Url> Urls { get; set; }
+        public DbSet<UrlModel> UrlModel { get; set; }
+
+        public DbSet<BrowserModel> BrowserModel { get; set; }
     }
 }

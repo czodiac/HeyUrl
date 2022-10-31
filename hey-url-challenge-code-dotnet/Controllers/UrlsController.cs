@@ -1,85 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using hey_url_challenge_code_dotnet.Models;
 using hey_url_challenge_code_dotnet.ViewModels;
+using HeyUrlChallengeCodeDotnet.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Shyjus.BrowserDetection;
+using Web_Application.Models;
 
-namespace HeyUrlChallengeCodeDotnet.Controllers
-{
+namespace HeyUrlChallengeCodeDotnet.Controllers {
     [Route("/")]
-    public class UrlsController : Controller
-    {
+    public class UrlsController : Controller {
         private readonly ILogger<UrlsController> _logger;
         private static readonly Random getrandom = new Random();
         private readonly IBrowserDetector browserDetector;
+        private readonly ApplicationContext _db;
 
-        public UrlsController(ILogger<UrlsController> logger, IBrowserDetector browserDetector)
-        {
+        public UrlsController(ILogger<UrlsController> logger, IBrowserDetector browserDetector, ApplicationContext db) {
             this.browserDetector = browserDetector;
             _logger = logger;
+            _db = db;
         }
 
-        public IActionResult Index()
-        {
+        public IActionResult Index() {
             var model = new HomeViewModel();
-            model.Urls = new List<Url>
-            {
-                new()
-                {
-                    ShortUrl = "ABCDE",
-                    Count = getrandom.Next(1, 10)
-                },
-                new()
-                {
-                    ShortUrl = "ABCDE",
-                    Count = getrandom.Next(1, 10)
-                },
-                new()
-                {
-                    ShortUrl = "ABCDE",
-                    Count = getrandom.Next(1, 10)
-                },
-            };
-            model.NewUrl = new();
+            model.Urls = _db.UrlModel;
+            return View(model);
+        }
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken] // CSRF
+        public IActionResult Index(HomeViewModel obj) {
+            if (ModelState.IsValid) {
+                UrlModel.CreateShortURL(_db, obj.NewUrl, false);
+            }
+            var model = new HomeViewModel();
+            model.Urls = _db.UrlModel;
             return View(model);
         }
 
         [Route("/{url}")]
-        public IActionResult Visit(string url) => new OkObjectResult($"{url}, {this.browserDetector.Browser.OS}, {this.browserDetector.Browser.Name}");
+        public IActionResult Visit(string url) {
+            string fullUrl = UrlModel.GetFullUrlFromShortUrl(_db, this.browserDetector.Browser, url);
+            if (!string.IsNullOrEmpty(fullUrl)) {
+                return Redirect(fullUrl);
+            } else {
+                return NotFound();
+            }
+        }
 
         [Route("urls/{url}")]
-        public IActionResult Show(string url) => View(new ShowViewModel
-        {
-            Url = new Url {ShortUrl = url, Count = getrandom.Next(1, 10)},
-            DailyClicks = new Dictionary<string, int>
-            {
-                {"1", 13},
-                {"2", 2},
-                {"3", 1},
-                {"4", 7},
-                {"5", 20},
-                {"6", 18},
-                {"7", 10},
-                {"8", 20},
-                {"9", 15},
-                {"10", 5}
-            },
-            BrowseClicks = new Dictionary<string, int>
-            {
-                { "IE", 13 },
-                { "Firefox", 22 },
-                { "Chrome", 17 },
-                { "Safari", 7 },
-            },
-            PlatformClicks = new Dictionary<string, int>
-            {
-                { "Windows", 13 },
-                { "macOS", 22 },
-                { "Ubuntu", 17 },
-                { "Other", 7 },
-            }
-        });
+        public IActionResult Show(string url) {
+            return View(BrowserModel.GetGraphData(_db, url));
+        }
     }
 }
