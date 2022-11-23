@@ -2,9 +2,7 @@
 
 # HeyURL! Code Challenge
 
-This repository has been created as a code challenge for candidates with
-FullStack Labs. Please setup your environment following the `Getting Started`
-section before starting the challenge.
+Uses .Net Core 6 MVC. Takes full url and creates a short url. Clicking the short url increments click count, takes user to the full url and also logs browser info. Short url click and browser stats are shown using Google Chart. Business logic is tested using Nunit. Runs on MS SQL.
 
 ## Getting Started
 
